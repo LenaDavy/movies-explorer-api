@@ -1,3 +1,6 @@
-const regexp = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
+const {
+  dataMovies = 'mongodb://localhost:27017/moviesdb',
+  PORT = 3000,
+} = process.env;
 
-module.exports = regexp;
+module.exports = { dataMovies, PORT };

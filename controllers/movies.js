@@ -5,7 +5,7 @@ const Forbidden = require('../errors/Forbidden');
 
 module.exports.storeMovie = (req, res, next) => {
   const {
-    country, director, duration, year, description, owner,
+    country, director, duration, year, description,
     image, trailerLink, thumbnail, movieId, nameRU, nameEN,
   } = req.body;
   Movie.create({
@@ -17,7 +17,7 @@ module.exports.storeMovie = (req, res, next) => {
     image,
     trailerLink,
     thumbnail,
-    owner,
+    owner: req.user._id,
     movieId,
     nameRU,
     nameEN,
@@ -30,17 +30,13 @@ module.exports.storeMovie = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные'));
-      } next(err);
+      } return next(err);
     });
 };
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
-    .then((movies) => {
-      if (!movies) {
-        return next(new NotFoundError('Объект не найден'));
-      } return res.send(movies);
-    })
+  Movie.find({ owner: req.user._id })
+    .then((movies) => { res.send(movies); })
     .catch(next);
 };
 

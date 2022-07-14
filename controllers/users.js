@@ -34,7 +34,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Введены некорректные данные'));
-      } next(err);
+      } return next(err);
     });
 };
 
@@ -70,18 +70,27 @@ module.exports.getMyInfo = (req, res, next) => {
 
 module.exports.swapProfile = (req, res, next) => {
   const { name, email } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, email }, { new: true, runValidators: true })
-    .then((updatedUser) => {
-      if (!updatedUser) {
-        return next(new NotFoundError('Объект не найден'));
-      } return res.send({
-        name: updatedUser.name,
-        email: updatedUser.email,
-      });
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictingRequest('Пользователь с данным email уже существует');
+      } return User.findByIdAndUpdate(
+        req.user._id,
+        { name, email },
+        { new: true, runValidators: true },
+      )
+        .then((updatedUser) => {
+          if (!updatedUser) {
+            return next(new NotFoundError('Объект не найден'));
+          } return res.send({
+            name: updatedUser.name,
+            email: updatedUser.email,
+          });
+        });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('Переданы некорректные данные'));
-      } next(err);
+      } return next(err);
     });
 };

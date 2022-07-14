@@ -12,14 +12,17 @@ routerMovies.post('/', celebrate({
     image: Joi.string().required(),
     trailerLink: Joi.string().required(),
     thumbnail: Joi.string().required(),
-    owner: Joi.string().hex().required(),
-    movieId: Joi.string().hex().required(),
-    nameRU: Joi.string().min(2).max(30).required(),
+    movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),
 }), storeMovie);
 
 routerMovies.get('/', getMovies);
-routerMovies.delete('/:movieId', deleteMovieById);
+routerMovies.delete('/:movieId', celebrate({
+  params: Joi.object().keys({
+    movieId: Joi.string().hex().length(24).required(),
+  }),
+}), deleteMovieById);
 
 module.exports = routerMovies;
